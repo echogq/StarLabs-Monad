@@ -7,7 +7,7 @@ from src.utils.config import Config, WalletInfo
 
 def print_wallets_stats(config: Config):
     """
-    Выводит статистику по всем кошелькам в виде таблицы
+     输出所有钱包的统计信息以表格形式显示
     """
     try:
         # 排序钱包按索引

@@ -67,7 +67,7 @@ class Start:
                 await monad.faucet()
                 return True
 
-            # Заранее определяем все задачи
+            # 预定义所有任务
             planned_tasks = []
             task_plan_msg = []
             for i, task_item in enumerate(self.config.FLOW.TASKS, 1):
@@ -79,15 +79,15 @@ class Start:
                     planned_tasks.append((i, task_item, None))
                     task_plan_msg.append(f"{i}. {task_item}")
 
-            # Выводим план выполнения одним сообщением
+            # 输出执行计划的日志
             logger.info(
                 f"[{self.account_index}] Task execution plan: {' | '.join(task_plan_msg)}"
             )
 
-            # Выполняем задачи по плану
+            #  执行选定的任务
             for _, task, _ in planned_tasks:
                 task = task.lower()
-                # Выполняем выбранную задачу
+                # 执行选定的任务
                 if task == "faucet":
                     if self.config.FAUCET.MONAD_XYZ:
                         await monad.faucet()

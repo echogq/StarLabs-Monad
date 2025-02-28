@@ -66,7 +66,7 @@ async def start():
     # 使用打乱的索引创建任务
     # 保存账户和私钥到文件。
 
-    # Определяем диапазон аккаунтов
+    # 确定账户范围
     start_index = config.SETTINGS.ACCOUNTS_RANGE[0]
     end_index = config.SETTINGS.ACCOUNTS_RANGE[1]
 
