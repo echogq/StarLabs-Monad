@@ -49,7 +49,7 @@ class Shmonad:
     async def swaps(self):
         for retry in range(self.config.SETTINGS.ATTEMPTS):
             try:
-                # Если оба флага false, ничего не делаем
+                # 如果两个标志都为false，什么都不做
                 if (
                     not self.config.SHMONAD.BUY_AND_STAKE_SHMON
                     and not self.config.SHMONAD.UNSTAKE_AND_SELL_SHMON
@@ -59,7 +59,7 @@ class Shmonad:
                     )
                     return True
 
-                # Получаем балансы
+                # 获取余额
                 shmon_balance, shmon_balance_formatted = await self._get_shmon_balance()
                 if shmon_balance is None:
                     logger.error(
@@ -79,7 +79,7 @@ class Shmonad:
                         f"[{self.account_index}] | Bonded balance: {bonded_balance_formatted:.6f} shMON"
                     )
 
-                # Если включен только unstake & sell
+                # 如果只启用unstake & sell
                 if (
                     self.config.SHMONAD.UNSTAKE_AND_SELL_SHMON
                     and not self.config.SHMONAD.BUY_AND_STAKE_SHMON
@@ -106,7 +106,7 @@ class Shmonad:
                             )
                             continue
 
-                # Если включен только buy & stake
+                # 如果只启用buy & stake
                 elif (
                     self.config.SHMONAD.BUY_AND_STAKE_SHMON
                     and not self.config.SHMONAD.UNSTAKE_AND_SELL_SHMON
@@ -128,10 +128,10 @@ class Shmonad:
                         logger.error(f"[{self.account_index}] | Failed to stake Shmon")
                         continue
 
-                # Если включены оба
+                # 如果启用两者
                 else:
                     if bonded_balance_formatted > 0.001:
-                        # Есть застейканные токены - анстейкаем и продаем
+                        # 有质押的代币 - 解质押并出售
                         if not await self.unstake_shmon():
                             logger.error(
                                 f"[{self.account_index}] | Failed to unstake Shmon"
@@ -153,14 +153,14 @@ class Shmonad:
                             )
                             continue
                     elif shmon_balance_formatted > 0.001:
-                        # Нет застейканных, но есть обычные - продаем
+                        # 没有质押的，但有普通的 - 出售
                         if not await self.sell_shmon():
                             logger.error(
                                 f"[{self.account_index}] | Failed to sell Shmon"
                             )
                             continue
                     else:
-                        # Нет ни застейканных, ни обычных токенов - покупаем и стейкаем
+                        # 没有质押的，也没有普通的 - 购买并质押
                         if not await self.buy_shmon():
                             logger.error(
                                 f"[{self.account_index}] | Failed to buy Shmon"
@@ -201,7 +201,7 @@ class Shmonad:
                 )
 
                 amount_to_swap = mon_balance * random_percent // 100
-                # Оставляем немного MON для газа
+                # 保留一些MON用于gas
                 amount_to_swap = int(amount_to_swap * 0.95)  # 95% от суммы
 
                 logger.info(
@@ -214,7 +214,7 @@ class Shmonad:
 
                 gas_params = await self.get_gas_params()
 
-                # Создаем базовую транзакцию для оценки газа
+                # 创建用于估算gas的基础交易
                 transaction = {
                     "from": self.account.address,
                     "to": SHMONAD_ADDRESS,
@@ -226,7 +226,7 @@ class Shmonad:
                     "type": 2,
                 }
 
-                # Оцениваем газ
+                # 估算gas
                 estimated_gas = await self.estimate_gas(transaction)
 
                 transaction = await contract.functions.deposit(
@@ -289,7 +289,7 @@ class Shmonad:
 
                 gas_params = await self.get_gas_params()
 
-                # Создаем базовую транзакцию для оценки газа
+                # 创建用于估算gas的基础交易
                 transaction = {
                     "from": self.account.address,
                     "to": SHMONAD_ADDRESS,
@@ -303,7 +303,7 @@ class Shmonad:
                     "type": 2,
                 }
 
-                # Оцениваем газ
+                # 估算gas
                 estimated_gas = await self.estimate_gas(transaction)
 
                 transaction = await contract.functions.redeem(
@@ -367,7 +367,7 @@ class Shmonad:
 
                 gas_params = await self.get_gas_params()
 
-                # Создаем базовую транзакцию для оценки газа
+                # 创建用于估算gas的基础交易
                 transaction = {
                     "from": self.account.address,
                     "to": SHMONAD_ADDRESS,
@@ -457,7 +457,7 @@ class Shmonad:
                     )
                     return False
 
-                # Сначала делаем unbond
+                # 首先进行unbond
                 logger.info(
                     f"[{self.account_index}] | Unbonding {bonded_balance_formatted:.6f} shMON"
                 )
@@ -468,7 +468,7 @@ class Shmonad:
 
                 gas_params = await self.get_gas_params()
 
-                # Первая транзакция - unbond
+                # 第一个交易 - unbond
                 transaction = {
                     "from": self.account.address,
                     "to": SHMONAD_ADDRESS,
@@ -515,7 +515,7 @@ class Shmonad:
                     logger.error(f"[{self.account_index}] | Failed to unbond Shmon")
                     return False
 
-                # Ждем ~1 минуту перед claim
+                # 等待~1分钟再claim
                 random_pause = random.randint(40, 60)
                 random_pause_config = random.randint(
                     self.config.SETTINGS.PAUSE_BETWEEN_SWAPS[0],
@@ -527,7 +527,7 @@ class Shmonad:
                 )
                 await asyncio.sleep(random_pause)
 
-                # Вторая транзакция - claim
+                # 第二个交易 - claim
                 logger.info(
                     f"[{self.account_index}] | Claiming {bonded_balance_formatted:.6f} shMON"
                 )
@@ -605,7 +605,7 @@ class Shmonad:
         """Estimate gas for transaction and add some buffer."""
         try:
             estimated = await self.web3.eth.estimate_gas(transaction)
-            # Добавляем 10% к estimated gas для безопасности
+            # 添加10%的estimated gas用于安全
             return int(estimated * 1.1)
         except Exception as e:
             logger.warning(

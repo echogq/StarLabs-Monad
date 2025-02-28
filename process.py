@@ -29,7 +29,7 @@ async def start():
     show_dev_info()
     config = src.utils.get_config()
 
-    # Читаем все файлы
+    # 检测代理
     proxies = src.utils.read_txt_file("proxies", "data/proxies.txt")
     if len(proxies) == 0:
         logger.error("No proxies found in data/proxies.txt")
@@ -54,30 +54,42 @@ async def start():
     else:
         private_keys = src.utils.read_txt_file("private keys", "data/private_keys.txt")
 
+    # 确定账户范围
+    # 如果两个都是0，检查 EXACT_ACCOUNTS_TO_USE
+    # 将账户号码转换为索引（号码 - 1）
+    # 为了与其余代码兼容
+    # 如果列表为空，获取所有账户如以前
+    # Python 切片不包括最后一个元素，因此 +1
+    # 准备为选定账户准备代理
+    # 创建索引列表并打乱
+    # 创建账户顺序字符串
+    # 使用打乱的索引创建任务
+    # 保存账户和私钥到文件。
+
     # Определяем диапазон аккаунтов
     start_index = config.SETTINGS.ACCOUNTS_RANGE[0]
     end_index = config.SETTINGS.ACCOUNTS_RANGE[1]
 
-    # Если оба 0, проверяем EXACT_ACCOUNTS_TO_USE
+    # 如果两个都是0，检查 EXACT_ACCOUNTS_TO_USE
     if start_index == 0 and end_index == 0:
         if config.SETTINGS.EXACT_ACCOUNTS_TO_USE:
-            # Преобразуем номера аккаунтов в индексы (номер - 1)
+            # 将账户号码转换为索引（号码 - 1）
             selected_indices = [i - 1 for i in config.SETTINGS.EXACT_ACCOUNTS_TO_USE]
             accounts_to_process = [private_keys[i] for i in selected_indices]
             logger.info(
                 f"Using specific accounts: {config.SETTINGS.EXACT_ACCOUNTS_TO_USE}"
             )
 
-            # Для совместимости с остальным кодом
+            # 为了与剩余代码兼容
             start_index = min(config.SETTINGS.EXACT_ACCOUNTS_TO_USE)
             end_index = max(config.SETTINGS.EXACT_ACCOUNTS_TO_USE)
         else:
-            # Если список пустой, берем все аккаунты как раньше
+            # 如果列表为空，获取所有账户如以前
             accounts_to_process = private_keys
             start_index = 1
             end_index = len(private_keys)
     else:
-        # Python slice не включает последний элемент, поэтому +1
+        # Python slice不包括最后一个元素，因此 +1
         accounts_to_process = private_keys[start_index - 1 : end_index]
 
     
@@ -86,16 +98,16 @@ async def start():
 
     threads = config.SETTINGS.THREADS
 
-    # Подготавливаем прокси для выбранных аккаунтов
+    # 准备为选定账户准备代理
     cycled_proxies = [
         proxies[i % len(proxies)] for i in range(len(accounts_to_process))
     ]
 
-    # Создаем список индексов и перемешиваем его
+    # 创建索引列表并打乱
     shuffled_indices = list(range(len(accounts_to_process)))
     random.shuffle(shuffled_indices)
 
-    # Создаем строку с порядком аккаунтов
+    # 创建账户顺序字符串
     account_order = " ".join(str(start_index + idx) for idx in shuffled_indices)
     logger.info(
         f"Starting with accounts {start_index} to {end_index} in random order..."
@@ -106,7 +118,7 @@ async def start():
     semaphore = asyncio.Semaphore(value=threads)
     tasks = []
 
-    # Используем перемешанные индексы для создания задач
+    # 使用打乱的索引创建任务
     for shuffled_idx in shuffled_indices:
         tasks.append(
             asyncio.create_task(
@@ -199,7 +211,7 @@ async def wrapper(function, config: src.utils.config.Config, *args, **kwargs):
 
 
 def task_exists_in_config(task_name: str, tasks_list: list) -> bool:
-    """Рекурсивно проверяет наличие задачи в списке задач, включая вложенные списки"""
+    """递归检查任务是否在任务列表中，包括嵌套列表"""
     for task in tasks_list:
         if isinstance(task, list):
             if task_exists_in_config(task_name, task):

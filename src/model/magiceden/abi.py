@@ -1,4 +1,4 @@
-# ABI для контракта MagicEden NFT
+# MagicEden NFT contract ABI
 ABI = [
     {
         "inputs": [

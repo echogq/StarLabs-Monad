@@ -9,7 +9,7 @@ from src.utils.constants import EXPLORER_URL, RPC_URL
 from src.utils.config import Config
 from loguru import logger
 
-# ABI для Monad King NFT на основе транзакций
+# ABI for Monad King NFT based on transactions
 MONAD_KING_ABI = [
     {
         "inputs": [
@@ -101,7 +101,7 @@ class Monadking:
             contract_name = "Unlocked Monad"
 
         try:
-            # Метод 1: Пробуем использовать tokensOfOwner
+            # Method 1: Try using tokensOfOwner
             try:
                 tokens = await contract.functions.tokensOfOwner(
                     self.account.address
@@ -113,7 +113,7 @@ class Monadking:
             except Exception as e:
                 logger.debug(f"[{self.account_index}] tokensOfOwner not available: {e}")
 
-            # Метод 2: Стандартный balanceOf
+            # Method 2: Standard balanceOf
             balance = await contract.functions.balanceOf(self.account.address, 0).call()
 
             return balance
@@ -130,7 +130,7 @@ class Monadking:
         """
         for _ in range(self.config.SETTINGS.ATTEMPTS):
             try:
-                # Проверяем баланс NFT
+                # Check NFT balance
                 balance = await self.get_nft_balance()
 
                 random_nft_amount = random.randint(
@@ -146,19 +146,19 @@ class Monadking:
 
                 logger.info(f"[{self.account_index}] Minting Monad King NFT")
 
-                # Параметры для минта на основе транзакций
+                # Parameters for mint based on transactions
                 native_token_address = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
                 price = self.web3.to_wei(0.02, "ether")
 
-                # Структура allowlistProof из транзакций
+                # Allowlist proof from transactions
                 allowlist_proof = (
-                    [],  # пустой proof
+                    [],  # empty proof
                     0,  # quantityLimitPerWallet = 0
                     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,  # pricePerToken (max uint256)
                     "0x0000000000000000000000000000000000000000",  # currency address
                 )
 
-                # Подготавливаем транзакцию минта
+                # Prepare mint transaction
                 mint_txn = await self.nft_contract.functions.claim(
                     self.account.address,  # receiver
                     1,  # quantity
@@ -178,17 +178,17 @@ class Monadking:
                     }
                 )
 
-                # Подписываем транзакцию
+                # Sign transaction
                 signed_txn = self.web3.eth.account.sign_transaction(
                     mint_txn, self.private_key
                 )
 
-                # Отправляем транзакцию
+                # Send transaction
                 tx_hash = await self.web3.eth.send_raw_transaction(
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения
+                # Wait for confirmation
                 receipt = await self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
                 if receipt["status"] == 1:
@@ -220,7 +220,7 @@ class Monadking:
         """
         for _ in range(self.config.SETTINGS.ATTEMPTS):
             try:
-                # Проверяем баланс NFT
+                # Check NFT balance
                 balance = await self.get_nft_balance(self.unlocked_contract)
 
                 random_nft_amount = random.randint(
@@ -236,21 +236,21 @@ class Monadking:
 
                 logger.info(f"[{self.account_index}] Minting Unlocked Monad NFT")
 
-                # Параметры для минта на основе транзакций
+                # Parameters for mint based on transactions
                 native_token_address = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
                 price = self.web3.to_wei(
                     0.05, "ether"
                 )  # 0.05 ETH based on the transaction
 
-                # Структура allowlistProof из транзакций
+                # Allowlist proof from transactions
                 allowlist_proof = (
-                    [],  # пустой proof
+                    [],  # empty proof
                     0,  # quantityLimitPerWallet = 0
                     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,  # pricePerToken (max uint256)
                     "0x0000000000000000000000000000000000000000",  # currency address
                 )
 
-                # Подготавливаем транзакцию минта
+                # Prepare mint transaction
                 mint_txn = await self.unlocked_contract.functions.claim(
                     self.account.address,  # receiver
                     1,  # quantity
@@ -270,17 +270,17 @@ class Monadking:
                     }
                 )
 
-                # Подписываем транзакцию
+                # Sign transaction
                 signed_txn = self.web3.eth.account.sign_transaction(
                     mint_txn, self.private_key
                 )
 
-                # Отправляем транзакцию
+                # Send transaction
                 tx_hash = await self.web3.eth.send_raw_transaction(
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения
+                # Wait for confirmation
                 receipt = await self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
                 if receipt["status"] == 1:

@@ -47,7 +47,7 @@ class Owlto:
         """Estimate gas for transaction and add some buffer."""
         try:
             estimated = await self.web3.eth.estimate_gas(transaction)
-            # Добавляем 10% к estimated gas для безопасности
+            # 添加10%的estimated gas用于安全
             return int(estimated * 1.1)
         except Exception as e:
             logger.warning(
@@ -62,20 +62,20 @@ class Owlto:
 
                 gas_params = await self.get_gas_params()
 
-                # Создаем базовую транзакцию для оценки газа
+                # 创建用于估算gas的基础交易
                 transaction = {
                     "from": self.account.address,
-                    "data": DEPLOY_CONTRACT_BYTECODE,  # используем правильное имя константы
+                    "data": DEPLOY_CONTRACT_BYTECODE,  # 使用正确的常量名称
                     "chainId": 10143,
                     "type": 2,
-                    "value": 0,  # не отправляем MON при деплое
+                    "value": 0,  # 不发送MON进行部署
                 }
 
-                # Оцениваем газ
+                # 估算gas
                 estimated_gas = await self.estimate_gas(transaction)
                 logger.info(f"[{self.account_index}] Estimated gas: {estimated_gas}")
 
-                # Добавляем остальные параметры транзакции
+                # 添加其他交易参数
                 transaction.update(
                     {
                         "nonce": await self.web3.eth.get_transaction_count(
@@ -94,7 +94,7 @@ class Owlto:
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения транзакции
+                # 等待交易确认
                 logger.info(
                     f"[{self.account_index}] Waiting for contract deployment confirmation..."
                 )

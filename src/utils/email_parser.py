@@ -78,7 +78,7 @@ class SyncEmailChecker:
             if not body:
                 continue
 
-            # Ищем код из 6 заглавных букв и цифр
+            # 搜索6个字母和数字的代码
             matches = re.findall(r"\b[A-Z0-9]{6}\b", body)
             if matches:
                 return matches[0]

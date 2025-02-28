@@ -9,7 +9,7 @@ from src.utils.constants import EXPLORER_URL, RPC_URL
 from src.utils.config import Config
 from loguru import logger
 
-# Обновляем ABI для ERC1155
+# 更新ERC1155的ABI
 ERC1155_ABI = [
     {
         "inputs": [
@@ -62,7 +62,7 @@ class MonadverseMint:
         """
         try:
             balance = await self.nft_contract.functions.balanceOf(
-                self.account.address, 2  # ID токена из транзакции
+                self.account.address, 2   # ID токена из транзакции
             ).call()
 
             return balance
@@ -83,13 +83,13 @@ class MonadverseMint:
 
                 logger.info(f"[{self.account_index}] Minting Monadverse NFT")
 
-                # Подготавливаем транзакцию минта
+                # 准备mint交易
                 mint_txn = await self.nft_contract.functions.mint().build_transaction(
                     {
                         "from": self.account.address,
                         "value": self.web3.to_wei(
                             0.5, "ether"
-                        ),  # Обновляем оплату до 0.5 MON
+                        ),  # 更新支付到0.5 MON
                         "nonce": await self.web3.eth.get_transaction_count(
                             self.account.address
                         ),
@@ -98,17 +98,17 @@ class MonadverseMint:
                     }
                 )
 
-                # Подписываем транзакцию
+                # 签名交易
                 signed_txn = self.web3.eth.account.sign_transaction(
                     mint_txn, self.private_key
                 )
 
-                # Отправляем транзакцию
+                # 发送交易
                 tx_hash = await self.web3.eth.send_raw_transaction(
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения
+                # 等待确认
                 receipt = await self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
                 if receipt["status"] == 1:

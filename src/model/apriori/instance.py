@@ -48,7 +48,7 @@ class Apriori:
         """Estimate gas for transaction and add some buffer."""
         try:
             estimated = await self.web3.eth.estimate_gas(transaction)
-            # Добавляем 10% к estimated gas для безопасности
+            # 添加10%的GAS用于安全
             return int(estimated * 1.1)
         except Exception as e:
             logger.warning(
@@ -70,12 +70,12 @@ class Apriori:
                     f"[{self.account_index}] Staking {random_amount} MON on Apriori"
                 )
 
-                # Создаем синхронную версию контракта для кодирования данных
+                # 创建同步版本的合约用于编码数据
                 contract = Web3().eth.contract(address=STAKE_ADDRESS, abi=STAKE_ABI)
                 amount_wei = Web3.to_wei(random_amount, "ether")
                 gas_params = await self.get_gas_params()
 
-                # Создаем базовую транзакцию для оценки газа
+                # 创建用于估算GAS的基础交易
                 transaction = {
                     "from": self.account.address,
                     "to": STAKE_ADDRESS,
@@ -87,11 +87,11 @@ class Apriori:
                     "type": 2,
                 }
 
-                # Оцениваем газ
+                # 估算GAS
                 estimated_gas = await self.estimate_gas(transaction)
                 logger.info(f"[{self.account_index}] Estimated gas: {estimated_gas}")
 
-                # Добавляем остальные параметры транзакции
+                # 添加其他交易参数
                 transaction.update(
                     {
                         "nonce": await self.web3.eth.get_transaction_count(
@@ -110,7 +110,7 @@ class Apriori:
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения транзакции
+                # 等待交易确认
                 logger.info(
                     f"[{self.account_index}] Waiting for transaction confirmation..."
                 )

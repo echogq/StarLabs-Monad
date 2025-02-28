@@ -9,7 +9,7 @@ from src.utils.constants import EXPLORER_URL, RPC_URL
 from src.utils.config import Config
 from loguru import logger
 
-# Обновляем ABI для контракта NFT
+# Update ABI for NFT contract
 ERC1155_ABI = [
     {
         "inputs": [
@@ -77,7 +77,7 @@ class Lilchogstars:
             int: количество NFT
         """
         try:
-            # Используем метод mintedCount для получения количества NFT
+            # Use mintedCount method to get the number of NFTs
             balance = await self.nft_contract.functions.mintedCount(
                 self.account.address
             ).call()
@@ -114,7 +114,7 @@ class Lilchogstars:
 
                 logger.info(f"[{self.account_index}] Minting Lilchogstars NFT")
 
-                # Подготавливаем транзакцию минта с параметром quantity=1
+                # Prepare mint transaction with quantity=1
                 mint_txn = await self.nft_contract.functions.mint(1).build_transaction(
                     {
                         "from": self.account.address,
@@ -127,17 +127,17 @@ class Lilchogstars:
                     }
                 )
 
-                # Подписываем транзакцию
+                # Sign transaction
                 signed_txn = self.web3.eth.account.sign_transaction(
                     mint_txn, self.private_key
                 )
 
-                # Отправляем транзакцию
+                # Send transaction
                 tx_hash = await self.web3.eth.send_raw_transaction(
                     signed_txn.raw_transaction
                 )
 
-                # Ждем подтверждения
+                # Wait for confirmation
                 receipt = await self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
                 if receipt["status"] == 1:
